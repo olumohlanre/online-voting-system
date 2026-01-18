@@ -56,6 +56,7 @@
         class="sticky top-0 z-50 w-full bg-white dark:bg-[#1a222e] border-b border-gray-200 dark:border-gray-800 shadow-sm">
         <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
             <div class="flex items-center justify-between h-16">
+                <!-- Logo -->
                 <a href="{% url 'index' %}" class="flex items-center gap-3">
                     <div class="text-primary">
                         <svg class="w-8 h-8" fill="none" viewBox="0 0 48 48" xmlns="http://www.w3.org/2000/svg">
@@ -65,37 +66,86 @@
                     <span class="text-xl font-bold tracking-tight">VoteEasy</span>
                 </a>
 
-                <nav class="hidden md:flex items-center gap-8">
-                    <a href="{% url 'index' %}"
-                        class="text-sm font-medium text-gray-600 dark:text-gray-300 hover:text-primary transition-colors py-5">Home</a>
-                    <a href="{% url 'create' %}"
-                        class="text-sm font-medium text-primary border-b-2 border-primary py-5">Polls</a>
-                    <a href="#"
-                        class="text-sm font-medium text-gray-600 dark:text-gray-300 hover:text-primary transition-colors py-5">Results</a>
-                </nav>
+                <!-- Desktop Navigation + Auth -->
+                <div class="hidden md:flex items-center gap-8">
+                    <nav class="flex items-center gap-8">
+                        <a href="{% url 'index' %}"
+                            class="text-sm font-medium text-gray-600 dark:text-gray-300 hover:text-primary transition-colors py-5">Home</a>
+                        <a href="{% url 'create' %}"
+                            class="text-sm font-medium text-primary border-b-2 border-primary py-5">Polls</a>
+                        <a href="#"
+                            class="text-sm font-medium text-gray-600 dark:text-gray-300 hover:text-primary transition-colors py-5">Results</a>
+                    </nav>
 
-                <div class="flex items-center gap-3">
+                    <div class="flex items-center gap-3">
+                        {% if user.is_authenticated %}
+                        <span class="text-sm text-gray-700 dark:text-gray-300">{{ user.username }}</span>
+                        <a href="#"
+                            class="px-4 py-2 text-sm font-medium rounded-lg border border-gray-300 dark:border-gray-600 hover:bg-gray-100 dark:hover:bg-gray-700 transition"
+                            onclick="document.getElementById('logout-form').submit(); return false;">
+                            Logout
+                        </a>
+                        <form id="logout-form" action="{% url 'logout' %}?next={% url 'index' %}" method="post"
+                            style="display:none;">
+                            {% csrf_token %}
+                        </form>
+                        {% else %}
+                        <a href="{% url 'login' %}"
+                            class="px-4 py-2 text-sm font-medium text-gray-700 dark:text-gray-300 hover:text-primary transition">
+                            Login
+                        </a>
+                        <a href="{% url 'register' %}"
+                            class="px-4 py-2 bg-primary text-white text-sm font-medium rounded-lg hover:bg-blue-600 transition shadow-sm">
+                            Register
+                        </a>
+                        {% endif %}
+
+                        <button class="p-2 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-800 transition"
+                            onclick="document.documentElement.classList.toggle('dark')">
+                            <span class="material-symbols-outlined">dark_mode</span>
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Mobile menu button -->
+                <button id="mobile-menu-btn"
+                    class="md:hidden p-2 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-800 transition">
+                    <span class="material-symbols-outlined text-2xl">menu</span>
+                </button>
+            </div>
+        </div>
+
+        <!-- Mobile Menu -->
+        <div id="mobile-menu"
+            class="hidden md:hidden bg-white dark:bg-[#1a222e] border-t border-gray-200 dark:border-gray-800">
+            <div class="px-4 py-6 space-y-5">
+                <a href="{% url 'index' %}"
+                    class="block text-base font-medium text-gray-600 dark:text-gray-300 hover:text-primary">Home</a>
+                <a href="{% url 'create' %}" class="block text-base font-medium text-primary">Create Poll</a>
+                <a href="#"
+                    class="block text-base font-medium text-gray-600 dark:text-gray-300 hover:text-primary">Results</a>
+
+                <div class="pt-4 border-t border-gray-200 dark:border-gray-800">
                     {% if user.is_authenticated %}
-                    <span class="text-sm text-gray-700 dark:text-gray-300">{{ user.username }}</span>
-                    <a href="{% url 'logout' %}?next={% url 'index' %}"
-                        class="px-4 py-2 text-sm font-medium rounded-lg border border-gray-300 dark:border-gray-600 hover:bg-gray-100 dark:hover:bg-gray-700 transition">
+                    <div class="text-base text-gray-700 dark:text-gray-300 mb-3">{{ user.username }}</div>
+                    <button onclick="document.getElementById('logout-form-mobile').submit();"
+                        class="w-full text-left text-base font-medium text-red-600 hover:text-red-700">
                         Logout
-                    </a>
+                    </button>
+                    <form id="logout-form-mobile" action="{% url 'logout' %}?next={% url 'index' %}" method="post"
+                        style="display:none;">
+                        {% csrf_token %}
+                    </form>
                     {% else %}
                     <a href="{% url 'login' %}"
-                        class="px-4 py-2 text-sm font-medium text-gray-700 dark:text-gray-300 hover:text-primary transition">
+                        class="block w-full text-center py-3 bg-gray-200 dark:bg-gray-700 text-gray-900 dark:text-white rounded-lg font-medium mb-3">
                         Login
                     </a>
                     <a href="{% url 'register' %}"
-                        class="px-4 py-2 bg-primary text-white text-sm font-medium rounded-lg hover:bg-blue-600 transition shadow-sm">
+                        class="block w-full text-center py-3 bg-primary text-white rounded-lg font-medium">
                         Register
                     </a>
                     {% endif %}
-
-                    <button class="p-2 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-800 transition"
-                        onclick="document.documentElement.classList.toggle('dark')">
-                        <span class="material-symbols-outlined">dark_mode</span>
-                    </button>
                 </div>
             </div>
         </div>
@@ -107,8 +157,8 @@
         {% for message in messages %}
         <div
             class="p-4 mb-4 text-sm rounded-lg border
-                    {% if message.tags == 'success' %}bg-green-100 border-green-400 text-green-800 dark:bg-green-900/30 dark:border-green-700 dark:text-green-200{% endif %}
-                    {% if message.tags == 'error' %}bg-red-100 border-red-400 text-red-800 dark:bg-red-900/30 dark:border-red-700 dark:text-red-200{% endif %}">
+            {% if message.tags == 'success' %}bg-green-100 border-green-400 text-green-800 dark:bg-green-900/30 dark:border-green-700 dark:text-green-200{% endif %}
+            {% if message.tags == 'error' %}bg-red-100 border-red-400 text-red-800 dark:bg-red-900/30 dark:border-red-700 dark:text-red-200{% endif %}">
             {{ message }}
         </div>
         {% endfor %}
@@ -117,18 +167,18 @@
 
     <!-- Main Content -->
     <main class="flex-grow">
-        <div class="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
+        <div class="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-8 sm:py-12">
             <div
                 class="bg-white dark:bg-[#1a222e] rounded-2xl shadow-xl shadow-gray-200/50 dark:shadow-none border border-gray-200 dark:border-gray-800 overflow-hidden">
-                <div class="p-8 sm:p-10">
-                    <div class="mb-10 text-center">
-                        <h1 class="text-3xl font-bold text-gray-900 dark:text-white tracking-tight">Create a New Poll
-                        </h1>
-                        <p class="mt-2 text-gray-500 dark:text-gray-400">Launch a new voting session for your community
-                        </p>
+                <div class="p-6 sm:p-10">
+                    <div class="mb-8 sm:mb-10 text-center">
+                        <h1 class="text-2xl sm:text-3xl font-bold text-gray-900 dark:text-white tracking-tight">Create a
+                            New Poll</h1>
+                        <p class="mt-2 text-gray-500 dark:text-gray-400 text-sm sm:text-base">Launch a new voting
+                            session for your community</p>
                     </div>
 
-                    <form method="post" class="space-y-8">
+                    <form method="post" class="space-y-6 sm:space-y-8">
                         {% csrf_token %}
 
                         <!-- Poll Question -->
@@ -137,11 +187,11 @@
                                 for="id_question">Poll Question</label>
                             <input type="text" name="question" id="id_question"
                                 placeholder="What would you like to ask?" required
-                                class="w-full px-4 py-3 rounded-xl border border-[#dbdfe6] dark:border-gray-700 dark:bg-gray-800 dark:text-white focus:ring-2 focus:ring-primary/30 focus:border-primary transition-all"
+                                class="w-full px-4 py-3 rounded-xl border border-[#dbdfe6] dark:border-gray-700 dark:bg-gray-800 dark:text-white focus:ring-2 focus:ring-primary/30 focus:border-primary transition-all text-sm sm:text-base"
                                 value="{{ form.question.value|default:'' }}">
                             {% if form.question.errors %}
-                            <p class="text-red-600 dark:text-red-400 text-sm mt-1">{{ form.question.errors|join:" " }}
-                            </p>
+                            <p class="text-red-600 dark:text-red-400 text-xs sm:text-sm mt-1">{{
+                                form.question.errors|join:" " }}</p>
                             {% endif %}
                         </div>
 
@@ -149,50 +199,49 @@
                         <div class="space-y-4">
                             <label class="text-sm font-semibold text-gray-700 dark:text-gray-200 block">Choices</label>
                             <div class="space-y-3" id="choices-container">
-                                <!-- Static initial two choices -->
-                                <div class="flex gap-3 choice-row">
+                                <div class="flex flex-col sm:flex-row gap-3 choice-row">
                                     <input type="text" name="choice_text" placeholder="Option 1" required
-                                        class="flex-grow px-4 py-3 rounded-xl border border-[#dbdfe6] dark:border-gray-700 dark:bg-gray-800 dark:text-white focus:ring-2 focus:ring-primary/30 focus:border-primary transition-all">
+                                        class="flex-grow px-4 py-3 rounded-xl border border-[#dbdfe6] dark:border-gray-700 dark:bg-gray-800 dark:text-white focus:ring-2 focus:ring-primary/30 focus:border-primary transition-all text-sm sm:text-base">
                                     <button type="button"
-                                        class="p-3 text-gray-400 hover:text-red-500 transition-colors remove-choice">
+                                        class="p-3 text-gray-400 hover:text-red-500 transition-colors self-start sm:self-center remove-choice">
                                         <span class="material-symbols-outlined">delete</span>
                                     </button>
                                 </div>
-                                <div class="flex gap-3 choice-row">
+                                <div class="flex flex-col sm:flex-row gap-3 choice-row">
                                     <input type="text" name="choice_text" placeholder="Option 2" required
-                                        class="flex-grow px-4 py-3 rounded-xl border border-[#dbdfe6] dark:border-gray-700 dark:bg-gray-800 dark:text-white focus:ring-2 focus:ring-primary/30 focus:border-primary transition-all">
+                                        class="flex-grow px-4 py-3 rounded-xl border border-[#dbdfe6] dark:border-gray-700 dark:bg-gray-800 dark:text-white focus:ring-2 focus:ring-primary/30 focus:border-primary transition-all text-sm sm:text-base">
                                     <button type="button"
-                                        class="p-3 text-gray-400 hover:text-red-500 transition-colors remove-choice">
+                                        class="p-3 text-gray-400 hover:text-red-500 transition-colors self-start sm:self-center remove-choice">
                                         <span class="material-symbols-outlined">delete</span>
                                     </button>
                                 </div>
                             </div>
 
                             <button type="button" id="add-choice"
-                                class="inline-flex items-center gap-2 text-sm font-bold text-primary hover:text-blue-600 transition-colors">
+                                class="inline-flex items-center gap-2 text-sm font-bold text-primary hover:text-blue-600 transition-colors mt-2">
                                 <span class="material-symbols-outlined text-lg">add_circle</span>
                                 Add Choice
                             </button>
                         </div>
 
                         <!-- Expiration & Multiple selections -->
-                        <div class="grid grid-cols-1 md:grid-cols-2 gap-8 pt-4">
+                        <div class="grid grid-cols-1 sm:grid-cols-2 gap-6 sm:gap-8 pt-4">
                             <div class="space-y-2">
                                 <label class="text-sm font-semibold text-gray-700 dark:text-gray-200 block"
                                     for="id_expires_at">Expiration Date (optional)</label>
                                 <div class="relative">
                                     <input type="date" name="expires_at" id="id_expires_at"
-                                        class="w-full px-4 py-3 rounded-xl border border-[#dbdfe6] dark:border-gray-700 dark:bg-gray-800 dark:text-white focus:ring-2 focus:ring-primary/30 focus:border-primary transition-all appearance-none">
+                                        class="w-full px-4 py-3 rounded-xl border border-[#dbdfe6] dark:border-gray-700 dark:bg-gray-800 dark:text-white focus:ring-2 focus:ring-primary/30 focus:border-primary transition-all appearance-none text-sm sm:text-base">
                                     <span
                                         class="material-symbols-outlined absolute right-4 top-1/2 -translate-y-1/2 text-gray-400 pointer-events-none">calendar_today</span>
                                 </div>
                                 {% if form.expires_at.errors %}
-                                <p class="text-red-600 dark:text-red-400 text-sm mt-1">{{ form.expires_at.errors|join:"
-                                    " }}</p>
+                                <p class="text-red-600 dark:text-red-400 text-xs sm:text-sm mt-1">{{
+                                    form.expires_at.errors|join:" " }}</p>
                                 {% endif %}
                             </div>
 
-                            <div class="flex flex-col justify-end pb-1">
+                            <div class="flex items-end pb-1">
                                 <label class="relative inline-flex items-center cursor-pointer">
                                     <input type="checkbox" name="allow_multiple" id="multiple-selections"
                                         class="sr-only peer">
@@ -207,13 +256,13 @@
 
                         <!-- Buttons -->
                         <div
-                            class="flex flex-col sm:flex-row items-center justify-between gap-6 pt-8 border-t border-gray-200 dark:border-gray-800">
+                            class="flex flex-col sm:flex-row items-center justify-between gap-4 sm:gap-6 pt-8 border-t border-gray-200 dark:border-gray-800">
                             <a href="{% url 'index' %}"
                                 class="text-sm font-bold text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-200 transition-colors">
                                 Cancel
                             </a>
                             <button type="submit"
-                                class="w-full sm:w-auto min-w-[200px] h-12 px-8 bg-primary text-white text-base font-bold rounded-xl shadow-lg shadow-primary/20 hover:bg-blue-600 hover:scale-[1.02] active:scale-[0.98] transition-all">
+                                class="w-full sm:w-auto min-w-[180px] sm:min-w-[200px] h-11 sm:h-12 px-6 sm:px-8 bg-primary text-white text-sm sm:text-base font-bold rounded-xl shadow-lg shadow-primary/20 hover:bg-blue-600 hover:scale-[1.02] active:scale-[0.98] transition-all">
                                 Create Poll
                             </button>
                         </div>
@@ -225,35 +274,45 @@
 
     <!-- Footer -->
     <footer class="bg-white dark:bg-[#1a222e] border-t border-gray-200 dark:border-gray-800 mt-auto">
-        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-10">
-            <div class="flex flex-col items-center gap-8 text-center">
-                <div class="flex flex-wrap justify-center gap-x-12 gap-y-4">
-                    <a class="text-gray-600 dark:text-gray-400 text-sm font-medium hover:text-primary transition-colors"
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 sm:py-10">
+            <div class="flex flex-col items-center gap-6 sm:gap-8 text-center">
+                <div class="flex flex-wrap justify-center gap-x-8 sm:gap-x-12 gap-y-3">
+                    <a class="text-gray-600 dark:text-gray-400 text-xs sm:text-sm font-medium hover:text-primary transition-colors"
                         href="#">Privacy Policy</a>
-                    <a class="text-gray-600 dark:text-gray-400 text-sm font-medium hover:text-primary transition-colors"
+                    <a class="text-gray-600 dark:text-gray-400 text-xs sm:text-sm font-medium hover:text-primary transition-colors"
                         href="#">Security</a>
-                    <a class="text-gray-600 dark:text-gray-400 text-sm font-medium hover:text-primary transition-colors"
+                    <a class="text-gray-600 dark:text-gray-400 text-xs sm:text-sm font-medium hover:text-primary transition-colors"
                         href="#">Help Center</a>
-                    <a class="text-gray-600 dark:text-gray-400 text-sm font-medium hover:text-primary transition-colors"
+                    <a class="text-gray-600 dark:text-gray-400 text-xs sm:text-sm font-medium hover:text-primary transition-colors"
                         href="#">Terms of Service</a>
                 </div>
-                <p class="text-gray-500 dark:text-gray-600 text-sm">
+                <p class="text-gray-500 dark:text-gray-600 text-xs sm:text-sm">
                     © {{ 'now'|date:"Y" }} VoteEasy. Built for modern democracy.
                 </p>
             </div>
         </div>
     </footer>
 
-    <!-- Simple JavaScript for dynamic choices -->
+    <!-- JavaScript for dynamic choices + mobile menu -->
     <script>
+        // Mobile menu toggle
+        const menuBtn = document.getElementById('mobile-menu-btn');
+        const mobileMenu = document.getElementById('mobile-menu');
+        if (menuBtn && mobileMenu) {
+            menuBtn.addEventListener('click', () => {
+                mobileMenu.classList.toggle('hidden');
+            });
+        }
+
+        // Dynamic choices
         document.getElementById('add-choice').addEventListener('click', function () {
             const container = document.getElementById('choices-container');
             const newChoice = document.createElement('div');
-            newChoice.className = 'flex gap-3 choice-row';
+            newChoice.className = 'flex flex-col sm:flex-row gap-3 choice-row';
             newChoice.innerHTML = `
                 <input type="text" name="choice_text" placeholder="New option" required 
-                       class="flex-grow px-4 py-3 rounded-xl border border-[#dbdfe6] dark:border-gray-700 dark:bg-gray-800 dark:text-white focus:ring-2 focus:ring-primary/30 focus:border-primary transition-all">
-                <button type="button" class="p-3 text-gray-400 hover:text-red-500 transition-colors remove-choice">
+                       class="flex-grow px-4 py-3 rounded-xl border border-[#dbdfe6] dark:border-gray-700 dark:bg-gray-800 dark:text-white focus:ring-2 focus:ring-primary/30 focus:border-primary transition-all text-sm sm:text-base">
+                <button type="button" class="p-3 text-gray-400 hover:text-red-500 transition-colors self-start sm:self-center remove-choice">
                     <span class="material-symbols-outlined">delete</span>
                 </button>
             `;
