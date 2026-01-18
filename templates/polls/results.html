@@ -38,30 +38,79 @@
 
             <!-- Header -->
             <header
-                class="flex items-center justify-between whitespace-nowrap border-b border-solid border-slate-200 dark:border-slate-800 bg-white dark:bg-background-dark px-10 py-3 sticky top-0 z-50">
-                <div class="flex items-center gap-4 text-slate-900 dark:text-white">
-                    <div class="size-6 text-primary">
-                        <svg fill="currentColor" viewBox="0 0 48 48" xmlns="http://www.w3.org/2000/svg">
-                            <path d="M44 4H30.6666V17.3334H17.3334V30.6666H4V44H44V4Z"></path>
-                        </svg>
+                class="sticky top-0 z-50 bg-white dark:bg-slate-900 border-b border-solid border-[#f0f2f5] dark:border-slate-800 px-4 sm:px-6 lg:px-10 py-3">
+                <div class="max-w-[1280px] mx-auto flex items-center justify-between">
+                    <div class="flex items-center gap-3 sm:gap-4">
+                        <div class="size-6 text-primary">
+                            <svg fill="currentColor" viewBox="0 0 48 48" xmlns="http://www.w3.org/2000/svg">
+                                <path d="M44 4H30.6666V17.3334H17.3334V30.6666H4V44H44V4Z"></path>
+                            </svg>
+                        </div>
+                        <h2 class="text-lg sm:text-xl font-bold tracking-[-0.015em]">VoteEasy</h2>
                     </div>
-                    <h2 class="text-lg font-bold leading-tight tracking-[-0.015em]">VoteEasy</h2>
+            
+                    <!-- Desktop Navigation + Auth -->
+                    <div class="hidden md:flex items-center gap-6 lg:gap-10">
+                        <nav class="flex items-center gap-6 lg:gap-9">
+                            <a href="{% url 'index' %}"
+                                class="text-sm font-medium hover:text-primary transition-colors">Home</a>
+                            <a href="{% url 'index' %}" class="text-primary text-sm font-semibold">Active Polls</a>
+                            <a href="#" class="text-sm font-medium hover:text-primary transition-colors">Results</a>
+                        </nav>
+            
+                        <div class="flex items-center gap-4">
+                            {% if user.is_authenticated %}
+                            <span class="text-sm text-gray-700 dark:text-gray-300 hidden lg:block">{{ user.username
+                                }}</span>
+                            <a href="#" class="text-sm text-gray-600 hover:text-primary"
+                                onclick="document.getElementById('logout-form').submit(); return false;">
+                                Logout
+                            </a>
+                            <form id="logout-form" action="{% url 'logout' %}?next={% url 'results' poll.id %}" method="post"
+                                style="display:none;">
+                                {% csrf_token %}
+                            </form>
+                            {% else %}
+                            <a href="{% url 'login' %}?next={% url 'results' poll.id %}"
+                                class="text-sm text-primary font-medium">Login to Vote</a>
+                            {% endif %}
+                        </div>
+                    </div>
+            
+                    <!-- Mobile menu button -->
+                    <button id="mobile-menu-btn"
+                        class="md:hidden p-2 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-800 transition">
+                        <span class="material-symbols-outlined text-2xl">menu</span>
+                    </button>
                 </div>
-                <div class="flex flex-1 justify-end gap-8">
-                    <nav class="flex items-center gap-9">
-                        <a href="{% url 'index' %}"
-                            class="text-slate-700 dark:text-slate-300 text-sm font-medium hover:text-primary transition-colors">Dashboard</a>
-                        <a href="{% url 'index' %}"
-                            class="text-slate-700 dark:text-slate-300 text-sm font-medium hover:text-primary transition-colors">Active
-                            Polls</a>
-                        <a href="{% url 'results' poll.id %}" class="text-primary text-sm font-bold">Results</a>
-                    </nav>
-                    {% if user.is_authenticated %}
-                    <div class="flex items-center gap-4">
-                        <span class="text-sm text-slate-700 dark:text-slate-300">{{ user.username }}</span>
-                        <a href="{% url 'logout' %}" class="text-sm text-slate-500 hover:text-primary">Logout</a>
+            
+                <!-- Mobile Menu -->
+                <div id="mobile-menu"
+                    class="hidden md:hidden bg-white dark:bg-slate-900 border-t border-[#f0f2f5] dark:border-slate-800">
+                    <div class="px-4 py-5 space-y-5">
+                        <a href="{% url 'index' %}" class="block text-base font-medium hover:text-primary">Home</a>
+                        <a href="{% url 'index' %}" class="block text-base font-medium text-primary">Active Polls</a>
+                        <a href="#" class="block text-base font-medium hover:text-primary">Results</a>
+            
+                        <div class="pt-4 border-t border-gray-200 dark:border-slate-700">
+                            {% if user.is_authenticated %}
+                            <div class="text-base text-gray-700 dark:text-gray-300 mb-3">{{ user.username }}</div>
+                            <button onclick="document.getElementById('logout-form-mobile').submit();"
+                                class="w-full text-left text-base font-medium text-red-600 hover:text-red-700">
+                                Logout
+                            </button>
+                            <form id="logout-form-mobile" action="{% url 'logout' %}?next={% url 'results' poll.id %}"
+                                method="post" style="display:none;">
+                                {% csrf_token %}
+                            </form>
+                            {% else %}
+                            <a href="{% url 'login' %}?next={% url 'results' poll.id %}"
+                                class="block w-full text-center py-3 bg-primary text-white rounded-lg font-medium">
+                                Login to Vote
+                            </a>
+                            {% endif %}
+                        </div>
                     </div>
-                    {% endif %}
                 </div>
             </header>
 
@@ -236,6 +285,18 @@
 
         </div>
     </div>
+
+    <!-- Mobile menu toggle -->
+    <script>
+        const menuBtn = document.getElementById('mobile-menu-btn');
+        const mobileMenu = document.getElementById('mobile-menu');
+
+        if (menuBtn && mobileMenu) {
+            menuBtn.addEventListener('click', () => {
+                mobileMenu.classList.toggle('hidden');
+            });
+        }
+    </script>
 </body>
 
 </html>
