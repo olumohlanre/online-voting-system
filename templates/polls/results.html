@@ -1,0 +1,241 @@
+<!DOCTYPE html>
+<html class="light" lang="en">
+
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Poll Results - {{ poll.question }} | VoteEasy</title>
+
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;700;900&display=swap" rel="stylesheet" />
+    <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap"
+        rel="stylesheet" />
+    <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap"
+        rel="stylesheet" />
+
+    <script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+    <script>
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    colors: {
+                        primary: "#1b6af3",
+                        "background-light": "#f5f6f8",
+                        "background-dark": "#101722",
+                    },
+                    fontFamily: {
+                        display: ["Inter", "sans-serif"]
+                    }
+                }
+            }
+        }
+    </script>
+</head>
+
+<body class="bg-background-light dark:bg-background-dark font-display min-h-screen">
+    <div class="relative flex h-auto min-h-screen w-full flex-col group/design-root overflow-x-hidden">
+        <div class="layout-container flex h-full grow flex-col">
+
+            <!-- Header -->
+            <header
+                class="flex items-center justify-between whitespace-nowrap border-b border-solid border-slate-200 dark:border-slate-800 bg-white dark:bg-background-dark px-10 py-3 sticky top-0 z-50">
+                <div class="flex items-center gap-4 text-slate-900 dark:text-white">
+                    <div class="size-6 text-primary">
+                        <svg fill="currentColor" viewBox="0 0 48 48" xmlns="http://www.w3.org/2000/svg">
+                            <path d="M44 4H30.6666V17.3334H17.3334V30.6666H4V44H44V4Z"></path>
+                        </svg>
+                    </div>
+                    <h2 class="text-lg font-bold leading-tight tracking-[-0.015em]">VoteEasy</h2>
+                </div>
+                <div class="flex flex-1 justify-end gap-8">
+                    <nav class="flex items-center gap-9">
+                        <a href="{% url 'index' %}"
+                            class="text-slate-700 dark:text-slate-300 text-sm font-medium hover:text-primary transition-colors">Dashboard</a>
+                        <a href="{% url 'index' %}"
+                            class="text-slate-700 dark:text-slate-300 text-sm font-medium hover:text-primary transition-colors">Active
+                            Polls</a>
+                        <a href="{% url 'results' poll.id %}" class="text-primary text-sm font-bold">Results</a>
+                    </nav>
+                    {% if user.is_authenticated %}
+                    <div class="flex items-center gap-4">
+                        <span class="text-sm text-slate-700 dark:text-slate-300">{{ user.username }}</span>
+                        <a href="{% url 'logout' %}" class="text-sm text-slate-500 hover:text-primary">Logout</a>
+                    </div>
+                    {% endif %}
+                </div>
+            </header>
+
+            <!-- Main Content -->
+            <main class="flex flex-1 justify-center py-8">
+                <div class="layout-content-container flex flex-col w-full max-w-[960px] px-6">
+
+                    <!-- Breadcrumbs -->
+                    <div class="flex flex-wrap items-center gap-2 py-2 mb-4 text-sm">
+                        <a href="{% url 'index' %}"
+                            class="text-slate-500 dark:text-slate-400 hover:text-primary flex items-center gap-1">
+                            <span class="material-symbols-outlined text-sm">home</span> Polls
+                        </a>
+                        <span class="material-symbols-outlined text-slate-400 text-sm">chevron_right</span>
+                        <span class="text-slate-900 dark:text-white font-semibold">Live Results</span>
+                    </div>
+
+                    <!-- Page Heading -->
+                    <div
+                        class="flex flex-wrap justify-between items-end gap-4 pb-8 border-b border-slate-200 dark:border-slate-800">
+                        <div class="flex min-w-72 flex-col gap-2">
+                            <div
+                                class="inline-flex items-center gap-2 px-2.5 py-0.5 rounded-full text-xs font-bold bg-green-100 text-green-700 dark:bg-green-900/30 dark:text-green-400 w-fit mb-2">
+                                <span class="size-2 rounded-full bg-green-500 animate-pulse"></span>
+                                LIVE RESULTS
+                            </div>
+                            <h1 class="text-slate-900 dark:text-white text-3xl font-black leading-tight tracking-tight">
+                                {{ poll.question }}
+                            </h1>
+                            <p class="text-slate-500 dark:text-slate-400 text-base font-normal">
+                                Real-time visualization of community feedback and participation trends.
+                            </p>
+                        </div>
+                        <div class="flex gap-3">
+                            <button
+                                class="flex items-center gap-2 rounded-lg h-11 px-5 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 text-slate-700 dark:text-slate-200 text-sm font-bold shadow-sm hover:bg-slate-50 transition-all">
+                                <span class="material-symbols-outlined text-lg">refresh</span>
+                                Refresh Data
+                            </button>
+                            <a href=""
+                                class="flex items-center gap-2 rounded-lg h-11 px-5 bg-primary text-white text-sm font-bold shadow-md shadow-primary/20 hover:bg-blue-600 transition-all">
+                                <span class="material-symbols-outlined text-lg">share</span>
+                                Share Poll
+                            </a>
+                        </div>
+                    </div>
+
+                    <div class="grid grid-cols-1 lg:grid-cols-3 gap-8 mt-8">
+
+                        <!-- Main Results Card -->
+                        <div class="lg:col-span-2 flex flex-col gap-6">
+                            <div
+                                class="p-6 bg-white dark:bg-slate-900 rounded-xl shadow-sm border border-slate-100 dark:border-slate-800 flex flex-col gap-8">
+
+                                {% if poll.choices.exists %}
+                                {% for item in choices_with_percent %}
+                                <div class="flex flex-col gap-3">
+                                    <div class="flex justify-between items-end">
+                                        <div class="flex flex-col">
+                                            <p class="text-slate-900 dark:text-white text-lg font-bold leading-tight">
+                                                {{ item.choice.choice_text }}
+                                                {% if item.choice == leading_choice %}
+                                                <span class="text-xs text-primary font-medium ml-2">(Most popular)</span>
+                                                {% endif %}
+                                            </p>
+                                            <p class="text-slate-500 dark:text-slate-400 text-sm">{{ item.choice.votes }} votes</p>
+                                        </div>
+                                        <p class="text-primary text-2xl font-black leading-none">{{ item.percentage|floatformat:1 }}%</p>
+                                    </div>
+                                    <div class="rounded-full bg-slate-100 dark:bg-slate-800 h-4 overflow-hidden">
+                                        <div class="h-full rounded-full bg-primary transition-all duration-1000"
+                                            style="width: {{ item.percentage_int }}%;"></div>
+                                    </div>
+                                </div>
+                                {% endfor %}
+                                {% else %}
+                                <div class="text-center py-12 text-slate-500 dark:text-slate-400">
+                                    <span class="material-symbols-outlined text-6xl mb-4">how_to_vote</span>
+                                    <p class="text-xl font-medium">No votes yet</p>
+                                    <p class="mt-2">Be the first to vote!</p>
+                                </div>
+                                {% endif %}
+
+                            </div>
+
+                            <!-- Back Button -->
+                            <div class="flex justify-start pt-4">
+                                <a href="{% url 'index' %}"
+                                    class="flex items-center gap-2 text-primary font-bold hover:underline group">
+                                    <span
+                                        class="material-symbols-outlined transition-transform group-hover:-translate-x-1">arrow_back</span>
+                                    Back to Polls List
+                                </a>
+                            </div>
+                        </div>
+
+                        <!-- Side Stats Panel -->
+                        <div class="flex flex-col gap-6">
+
+                            <!-- Participation Summary -->
+                            <div
+                                class="p-6 bg-primary dark:bg-primary/20 rounded-xl text-white shadow-lg shadow-primary/20">
+                                <div class="flex items-center gap-3 mb-4">
+                                    <span class="material-symbols-outlined bg-white/20 p-2 rounded-lg">analytics</span>
+                                    <span class="text-sm font-bold uppercase tracking-widest text-white/80">Poll
+                                        Status</span>
+                                </div>
+                                <div class="flex flex-col gap-1">
+                                    <p class="text-4xl font-black">{{ poll.total_votes }}</p>
+                                    <p class="text-white/80 font-medium">Total Votes Cast</p>
+                                </div>
+                                <div class="mt-6 pt-6 border-t border-white/20 flex flex-col gap-3">
+                                    <div class="flex justify-between text-sm">
+                                        <span class="text-white/70">Completion Rate</span>
+                                        <span class="font-bold">100%</span>
+                                    </div>
+                                    {% if poll.expires_at %}
+                                    <div class="flex justify-between text-sm">
+                                        <span class="text-white/70">Days Remaining</span>
+                                        <span class="font-bold">{{ poll.days_remaining }}</span>
+                                    </div>
+                                    {% endif %}
+                                </div>
+                            </div>
+
+                            <!-- Engagement Info -->
+                            <div
+                                class="p-6 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-xl">
+                                <h3 class="text-slate-900 dark:text-white font-bold mb-4">Engagement Trends</h3>
+                                <div class="space-y-4">
+                                    <div class="flex items-center gap-4">
+                                        <div
+                                            class="size-10 rounded-lg bg-slate-50 dark:bg-slate-800 flex items-center justify-center text-primary">
+                                            <span class="material-symbols-outlined">trending_up</span>
+                                        </div>
+                                        <div>
+                                            <p class="text-sm font-bold text-slate-900 dark:text-white">+{{ poll.vote_growth|default:"0" }}% Growth</p>
+                                            <p class="text-xs text-slate-500">From last 24 hours</p>
+                                        </div>
+                                    </div>
+                                    <div class="flex items-center gap-4">
+                                        <div
+                                            class="size-10 rounded-lg bg-slate-50 dark:bg-slate-800 flex items-center justify-center text-primary">
+                                            <span class="material-symbols-outlined">public</span>
+                                        </div>
+                                        <div>
+                                            <p class="text-sm font-bold text-slate-900 dark:text-white">Global Reach</p>
+                                            <p class="text-xs text-slate-500">Votes from multiple locations</p>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+
+                        </div>
+                    </div>
+                </div>
+            </main>
+
+            <!-- Footer -->
+            <footer
+                class="mt-auto border-t border-slate-200 dark:border-slate-800 py-6 px-10 bg-white dark:bg-background-dark">
+                <div
+                    class="max-w-[960px] mx-auto flex flex-col md:flex-row justify-between items-center gap-4 text-slate-500 dark:text-slate-400 text-xs">
+                    <p>© {{ 'now'|date:"Y" }} VoteEasy Analytics. All results are cryptographically verified.</p>
+                    <div class="flex gap-6">
+                        <a href="#" class="hover:text-primary">Terms of Service</a>
+                        <a href="#" class="hover:text-primary">Privacy Policy</a>
+                        <a href="#" class="hover:text-primary">Export Data (CSV)</a>
+                    </div>
+                </div>
+            </footer>
+
+        </div>
+    </div>
+</body>
+
+</html>

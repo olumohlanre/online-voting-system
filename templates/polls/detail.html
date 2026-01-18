@@ -1,0 +1,265 @@
+<!DOCTYPE html>
+<html class="light" lang="en">
+
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Cast Your Vote - {{ poll.question }} | VoteEasy</title>
+
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;900&display=swap"
+        rel="stylesheet" />
+    <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap"
+        rel="stylesheet" />
+    <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap"
+        rel="stylesheet" />
+
+    <script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+    <script>
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    colors: {
+                        primary: "#1b6af3",
+                        "background-light": "#f5f6f8",
+                        "background-dark": "#101722",
+                    },
+                    fontFamily: {
+                        display: ["Inter", "sans-serif"]
+                    }
+                }
+            }
+        }
+    </script>
+
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
+        }
+
+        .radio-dot-svg {
+            --radio-dot-svg: url('data:image/svg+xml,%3csvg viewBox=%270 0 16 16%27 fill=%27rgb(27,106,243)%27 xmlns=%27http://www.w3.org/2000/svg%27%3e%3ccircle cx=%278%27 cy=%278%27 r=%273%27/%3e%3c/svg%3e');
+        }
+
+        .checkbox-tick-svg {
+            --checkbox-tick-svg: url('data:image/svg+xml,%3csvg viewBox=%270 0 16 16%27 fill=%27white%27 xmlns=%27http://www.w3.org/2000/svg%27%3e%3cpath d=%27M12.207 4.793a1 1 0 010 1.414l-5 5a1 1 0 01-1.414 0l-2-2a1 1 0 011.414-1.414L6.5 9.086l4.293-4.293a1 1 0 011.414 0z%27/%3e%3c/svg%3e');
+        }
+    </style>
+</head>
+
+<body class="bg-background-light dark:bg-background-dark text-[#111318] dark:text-gray-100 font-display min-h-screen">
+    <div class="flex flex-col min-h-screen">
+
+        <!-- Header -->
+        <header
+            class="sticky top-0 z-50 bg-white dark:bg-slate-900 border-b border-solid border-[#f0f2f5] dark:border-slate-800 px-4 sm:px-6 lg:px-10 py-3">
+            <div class="max-w-[1280px] mx-auto flex items-center justify-between">
+                <div class="flex items-center gap-3 sm:gap-4">
+                    <div class="size-6 text-primary">
+                        <svg fill="currentColor" viewBox="0 0 48 48" xmlns="http://www.w3.org/2000/svg">
+                            <path d="M44 4H30.6666V17.3334H17.3334V30.6666H4V44H44V4Z"></path>
+                        </svg>
+                    </div>
+                    <h2 class="text-lg sm:text-xl font-bold tracking-[-0.015em]">VoteEasy</h2>
+                </div>
+
+                <!-- Desktop Navigation + Auth -->
+                <div class="hidden md:flex items-center gap-6 lg:gap-10">
+                    <nav class="flex items-center gap-6 lg:gap-9">
+                        <a href="{% url 'polls:index' %}"
+                            class="text-sm font-medium hover:text-primary transition-colors">Home</a>
+                        <a href="{% url 'polls:index' %}" class="text-primary text-sm font-semibold">Active Polls</a>
+                        <a href="#" class="text-sm font-medium hover:text-primary transition-colors">Results</a>
+                    </nav>
+
+                    <div class="flex items-center gap-4">
+                        {% if user.is_authenticated %}
+                        <span class="text-sm text-gray-700 dark:text-gray-300 hidden lg:block">{{ user.username
+                            }}</span>
+                        <a href="#" class="text-sm text-gray-600 hover:text-primary"
+                            onclick="document.getElementById('logout-form').submit(); return false;">
+                            Logout
+                        </a>
+                        <form id="logout-form" action="{% url 'logout' %}?next={% url 'polls:detail' poll.id %}"
+                            method="post" style="display:none;">
+                            {% csrf_token %}
+                        </form>
+                        {% else %}
+                        <a href="{% url 'login' %}?next={% url 'polls:detail' poll.id %}"
+                            class="text-sm text-primary font-medium">Login to Vote</a>
+                        {% endif %}
+                    </div>
+                </div>
+
+                <!-- Mobile menu button -->
+                <button id="mobile-menu-btn"
+                    class="md:hidden p-2 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-800 transition">
+                    <span class="material-symbols-outlined text-2xl">menu</span>
+                </button>
+            </div>
+
+            <!-- Mobile Menu -->
+            <div id="mobile-menu"
+                class="hidden md:hidden bg-white dark:bg-slate-900 border-t border-[#f0f2f5] dark:border-slate-800">
+                <div class="px-4 py-5 space-y-5">
+                    <a href="{% url 'polls:index' %}" class="block text-base font-medium hover:text-primary">Home</a>
+                    <a href="{% url 'polls:index' %}" class="block text-base font-medium text-primary">Active Polls</a>
+                    <a href="#" class="block text-base font-medium hover:text-primary">Results</a>
+
+                    <div class="pt-4 border-t border-gray-200 dark:border-slate-700">
+                        {% if user.is_authenticated %}
+                        <div class="text-base text-gray-700 dark:text-gray-300 mb-3">{{ user.username }}</div>
+                        <button onclick="document.getElementById('logout-form-mobile').submit();"
+                            class="w-full text-left text-base font-medium text-red-600 hover:text-red-700">
+                            Logout
+                        </button>
+                        <form id="logout-form-mobile" action="{% url 'logout' %}?next={% url 'polls:detail' poll.id %}"
+                            method="post" style="display:none;">
+                            {% csrf_token %}
+                        </form>
+                        {% else %}
+                        <a href="{% url 'login' %}?next={% url 'polls:detail' poll.id %}"
+                            class="block w-full text-center py-3 bg-primary text-white rounded-lg font-medium">
+                            Login to Vote
+                        </a>
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+        </header>
+
+        <!-- Main Content -->
+        <main class="flex-1 px-4 sm:px-6 lg:px-20 py-6 sm:py-8">
+            <div class="max-w-[768px] mx-auto flex flex-col gap-5 sm:gap-6">
+
+                <!-- Breadcrumbs -->
+                <div class="flex flex-wrap items-center gap-2 text-xs sm:text-sm">
+                    <a href="{% url 'polls:index' %}"
+                        class="text-[#60708a] dark:text-gray-400 hover:text-primary">Home</a>
+                    <span class="text-[#60708a]">/</span>
+                    <span class="text-[#111318] dark:text-white">Cast Vote</span>
+                </div>
+
+                <!-- Poll Header -->
+                <div class="flex flex-col gap-3 sm:gap-4">
+                    <div class="flex flex-wrap items-center gap-2">
+                        <span
+                            class="bg-green-100 dark:bg-green-900/30 text-green-700 dark:text-green-400 text-xs font-bold px-3 py-1 rounded uppercase">
+                            {% if poll.is_active and not poll.is_expired %}Open{% else %}Closed{% endif %}
+                        </span>
+                        {% if poll.expires_at %}
+                        <span class="text-xs sm:text-sm text-gray-600 dark:text-gray-400 flex items-center gap-1">
+                            <span class="material-symbols-outlined text-sm">schedule</span>
+                            Ends {{ poll.expires_at|date:"M d, Y" }}
+                        </span>
+                        {% endif %}
+                    </div>
+
+                    <h1 class="text-2xl sm:text-3xl md:text-4xl font-black leading-tight tracking-tight">
+                        {{ poll.question }}
+                    </h1>
+
+                    <p class="text-sm sm:text-base text-gray-600 dark:text-gray-400">
+                        {% if poll.allow_multiple %}
+                        Select one or more options below.
+                        {% else %}
+                        Select one option below. Your vote is final.
+                        {% endif %}
+                    </p>
+
+                    {% if user.is_authenticated and has_voted %}
+                    <div
+                        class="bg-amber-50 dark:bg-amber-900/20 border border-amber-200 dark:border-amber-800 rounded-lg p-4 sm:p-5 text-center">
+                        <span
+                            class="material-symbols-outlined text-amber-600 dark:text-amber-400 text-2xl sm:text-3xl mb-2">info</span>
+                        <p class="font-semibold text-amber-800 dark:text-amber-300 text-sm sm:text-base">
+                            You have already voted in this poll.
+                        </p>
+                        <p class="text-xs sm:text-sm text-amber-700 dark:text-amber-400 mt-1">
+                            You can view the results below.
+                        </p>
+                    </div>
+                    {% elif not user.is_authenticated %}
+                    <div
+                        class="bg-blue-50 dark:bg-blue-900/20 border border-blue-200 dark:border-blue-800 rounded-lg p-4 sm:p-5 text-center">
+                        <p class="text-sm sm:text-base font-medium">
+                            Please <a href="{% url 'login' %}?next={% url 'polls:detail' poll.id %}"
+                                class="text-primary hover:underline font-medium">log in</a> to cast your vote.
+                        </p>
+                    </div>
+                    {% endif %}
+                </div>
+
+                <!-- Voting Form -->
+                {% if user.is_authenticated and not has_voted and poll.is_active and not poll.is_expired %}
+                <form method="post" class="space-y-5 sm:space-y-6">
+                    {% csrf_token %}
+
+                    <div
+                        class="flex flex-col gap-3 sm:gap-4 {% if poll.allow_multiple %}checkbox-tick-svg{% else %}radio-dot-svg{% endif %}">
+                        {% for choice in poll.choices.all %}
+                        <label
+                            class="group relative flex items-start sm:items-center gap-3 sm:gap-4 rounded-xl border-2 border-[#dbdfe6] dark:border-slate-700 bg-white dark:bg-slate-900 p-4 sm:p-5 cursor-pointer hover:border-primary/50 hover:shadow-md transition-all flex-row-reverse has-[:checked]:border-primary has-[:checked]:bg-primary/5 dark:has-[:checked]:bg-primary/10">
+                            <input type="{% if poll.allow_multiple %}checkbox{% else %}radio{% endif %}"
+                                name="choice{% if poll.allow_multiple %}[]{% endif %}" value="{{ choice.id }}"
+                                class="h-5 w-5 sm:h-6 sm:w-6 border-2 border-[#dbdfe6] dark:border-slate-600 bg-transparent checked:border-primary checked:bg-[image:var(--radio-dot-svg)] checked:bg-no-repeat checked:bg-center focus:outline-none focus:ring-0 mt-1 sm:mt-0"
+                                {% if poll.allow_multiple %}multiple{% endif %} />
+                            <div class="flex grow flex-col">
+                                <p class="text-base sm:text-lg font-bold">{{ choice.choice_text }}</p>
+                            </div>
+                        </label>
+                        {% endfor %}
+                    </div>
+
+                    <div class="pt-4 sm:pt-6">
+                        <button type="submit"
+                            class="w-full h-12 sm:h-14 bg-primary text-white font-bold rounded-xl hover:bg-blue-600 transition-all shadow-lg shadow-primary/20 text-base sm:text-lg">
+                            Submit Vote
+                        </button>
+                    </div>
+                </form>
+                {% else %}
+                <div class="text-center py-10 sm:py-12 text-gray-600 dark:text-gray-400">
+                    <span class="material-symbols-outlined text-5xl sm:text-6xl opacity-50 mb-4">how_to_vote</span>
+                    <p class="text-lg sm:text-xl font-medium">
+                        {% if has_voted %}Thank you for voting!{% else %}Voting is closed or requires login{% endif %}
+                    </p>
+                </div>
+                {% endif %}
+
+                <!-- View Results -->
+                <div class="text-center mt-6">
+                    <a href="{% url 'polls:results' poll.id %}"
+                        class="inline-flex items-center gap-2 text-primary font-medium hover:underline text-sm sm:text-base">
+                        <span class="material-symbols-outlined">bar_chart</span>
+                        View Results (Live)
+                    </a>
+                </div>
+            </div>
+        </main>
+
+        <!-- Footer -->
+        <footer
+            class="mt-auto py-6 sm:py-8 bg-white dark:bg-slate-900 border-t border-slate-200 dark:border-slate-800 px-4">
+            <div class="max-w-[768px] mx-auto text-center text-xs sm:text-sm text-[#60708a] dark:text-gray-400">
+                © {{ 'now'|date:"Y" }} VoteEasy Inc. All rights reserved.
+            </div>
+        </footer>
+
+    </div>
+
+    <!-- Mobile menu toggle -->
+    <script>
+        const menuBtn = document.getElementById('mobile-menu-btn');
+        const mobileMenu = document.getElementById('mobile-menu');
+
+        if (menuBtn && mobileMenu) {
+            menuBtn.addEventListener('click', () => {
+                mobileMenu.classList.toggle('hidden');
+            });
+        }
+    </script>
+
+</body>
+
+</html>
